@@ -3,9 +3,8 @@ package br.com.maike.order_managment_ssm;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.action.Action;
-import org.springframework.statemachine.config.EnableStateMachineFactory;
-import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
-import org.springframework.statemachine.config.builders.StateMachineConfigBuilder;
+import org.springframework.statemachine.config.EnableStateMachine;
+import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
@@ -17,8 +16,8 @@ import java.util.EnumSet;
 import java.util.Objects;
 
 @Configuration
-@EnableStateMachineFactory
-public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<OrderStates, OrderEvents> {
+@EnableStateMachine
+public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderStates, OrderEvents> {
     @Override
     public void configure(StateMachineStateConfigurer<OrderStates, OrderEvents> states) throws Exception {
         states.withStates()
@@ -66,21 +65,24 @@ public class StateMachineConfig extends EnumStateMachineConfigurerAdapter<OrderS
     @Bean
     Action<OrderStates, OrderEvents> shipOrderAction() {
         return context -> {
-            System.out.println("Shipping order");
+            Order order = (Order)  context.getMessageHeader("order");
+            System.out.println("Shipping order " + order.getId());
         };
     }
 
     @Bean
     Action<OrderStates, OrderEvents> payOrderAction() {
         return context -> {
-            System.out.println("Paying order");
+            Order order = (Order)  context.getMessageHeader("order");
+            System.out.println("Paying order " + order.getId());
         };
     }
 
     @Bean
     Action<OrderStates, OrderEvents> validateOrderAction() {
         return context -> {
-            System.out.println("Validating order");
+            Order order = (Order)  context.getMessageHeader("order");
+            System.out.println("Validating order " + order.getId());
         };
     }
 }
