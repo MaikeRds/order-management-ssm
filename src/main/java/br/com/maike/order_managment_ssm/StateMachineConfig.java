@@ -15,6 +15,8 @@ import org.springframework.statemachine.transition.Transition;
 import java.util.EnumSet;
 import java.util.Objects;
 
+import static br.com.maike.order_managment_ssm.OrderService.HEADER_KEY_ORDEM;
+
 @Configuration
 @EnableStateMachine
 public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderStates, OrderEvents> {
@@ -53,10 +55,10 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderState
 
     @Bean
     StateMachineListener<OrderStates, OrderEvents> stateMachineListener() {
-        return new StateMachineListenerAdapter<>(){
+        return new StateMachineListenerAdapter<>() {
             @Override
             public void transition(Transition<OrderStates, OrderEvents> transition) {
-                if(Objects.nonNull(transition.getSource()))
+                if (Objects.nonNull(transition.getSource()))
                     System.out.println("Trasition from " + transition.getSource().getId() + " to " + transition.getTarget().getId());
             }
         };
@@ -65,7 +67,7 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderState
     @Bean
     Action<OrderStates, OrderEvents> shipOrderAction() {
         return context -> {
-            Order order = (Order)  context.getMessageHeader("order");
+            Order order = (Order) context.getMessageHeader(HEADER_KEY_ORDEM);
             System.out.println("Shipping order " + order.getId());
         };
     }
@@ -73,7 +75,7 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderState
     @Bean
     Action<OrderStates, OrderEvents> payOrderAction() {
         return context -> {
-            Order order = (Order)  context.getMessageHeader("order");
+            Order order = (Order) context.getMessageHeader(HEADER_KEY_ORDEM);
             System.out.println("Paying order " + order.getId());
         };
     }
@@ -81,7 +83,7 @@ public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderState
     @Bean
     Action<OrderStates, OrderEvents> validateOrderAction() {
         return context -> {
-            Order order = (Order)  context.getMessageHeader("order");
+            Order order = (Order) context.getMessageHeader(HEADER_KEY_ORDEM);
             System.out.println("Validating order " + order.getId());
         };
     }

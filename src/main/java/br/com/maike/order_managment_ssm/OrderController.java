@@ -27,33 +27,22 @@ public class OrderController {
         return orderService.findAll();
     }
 
-    @GetMapping(value = "/{orderId}", produces = MediaType.APPLICATION_JSON_VALUE )
+    @GetMapping(value = "/{orderId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Order> getOrder(@PathVariable Long orderId) {
-        Order order =  orderService.getOrder(orderId);
+        Order order = orderService.getOrder(orderId);
         return ResponseEntity.ok(order);
     }
 
-    @GetMapping("/{orderId}/validate")
-    public String validateOrder(@PathVariable Long orderId) {
-        orderService.validateOrder(orderId);
-        return "validate order";
+    @GetMapping("/{orderId}/event/{event}")
+    public ResponseEntity processOrder(@PathVariable Long orderId, @PathVariable OrderEvents event) {
+        String response = orderService.processOrder(orderId, event);
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{orderId}/pay")
-    public String payOrder(@PathVariable Long orderId) {
-        orderService.payOrder(orderId);
-        return "pay order";
+    @GetMapping("/{orderId}/event/{event}/async")
+    public ResponseEntity processOrderAsync(@PathVariable Long orderId, @PathVariable OrderEvents event) {
+        orderService.processOrderAsync(orderId, event);
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{orderId}/ship")
-    public String shipOrder(@PathVariable Long orderId) {
-        orderService.shipOrder(orderId);
-        return "ship order";
-    }
-
-    @GetMapping("/{orderId}/complete")
-    public String completeOrder(@PathVariable Long orderId) {
-        orderService.completeOrder(orderId);
-        return "complete order";
-    }
 }
