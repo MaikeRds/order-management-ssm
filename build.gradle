@@ -19,6 +19,8 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.projectlombok:lombok:1.18.28'
+	implementation 'org.projectlombok:lombok:1.18.28'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
@@ -27,6 +29,10 @@ dependencies {
 	runtimeOnly 'com.h2database:h2'
 
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5'
+
+	// https://projectlombok.org
+	compileOnly 'org.projectlombok:lombok:1.18.24'
+	annotationProcessor 'org.projectlombok:lombok:1.18.24'
 
 	// https://mvnrepository.com/artifact/org.springframework.statemachine/spring-statemachine-core
 	implementation 'org.springframework.statemachine:spring-statemachine-core:4.0.0'

@@ -1,5 +1,9 @@
-package br.com.maike.order_managment_ssm;
+package br.com.maike.order_managment_ssm.services;
 
+import br.com.maike.order_managment_ssm.enums.OrderEvents;
+import br.com.maike.order_managment_ssm.enums.OrderStates;
+import br.com.maike.order_managment_ssm.models.Order;
+import br.com.maike.order_managment_ssm.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;

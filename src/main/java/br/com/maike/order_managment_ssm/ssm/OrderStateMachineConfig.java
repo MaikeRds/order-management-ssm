@@ -1,5 +1,8 @@
-package br.com.maike.order_managment_ssm;
+package br.com.maike.order_managment_ssm.ssm;
 
+import br.com.maike.order_managment_ssm.enums.OrderEvents;
+import br.com.maike.order_managment_ssm.enums.OrderStates;
+import br.com.maike.order_managment_ssm.models.Order;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.statemachine.action.Action;
@@ -15,11 +18,11 @@ import org.springframework.statemachine.transition.Transition;
 import java.util.EnumSet;
 import java.util.Objects;
 
-import static br.com.maike.order_managment_ssm.OrderService.HEADER_KEY_ORDEM;
+import static br.com.maike.order_managment_ssm.services.OrderService.HEADER_KEY_ORDEM;
 
 @Configuration
 @EnableStateMachine
-public class StateMachineConfig extends StateMachineConfigurerAdapter<OrderStates, OrderEvents> {
+public class OrderStateMachineConfig extends StateMachineConfigurerAdapter<OrderStates, OrderEvents> {
     @Override
     public void configure(StateMachineStateConfigurer<OrderStates, OrderEvents> states) throws Exception {
         states.withStates()
