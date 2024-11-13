@@ -2,7 +2,6 @@ package br.com.maike.order_managment_ssm.ssm;
 
 import br.com.maike.order_managment_ssm.enums.OrderEvents;
 import br.com.maike.order_managment_ssm.enums.OrderStates;
-import br.com.maike.order_managment_ssm.models.Order;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -19,7 +18,7 @@ import org.springframework.statemachine.transition.Transition;
 import java.util.EnumSet;
 import java.util.Objects;
 
-import static br.com.maike.order_managment_ssm.services.OrderService.HEADER_KEY_ORDEM;
+import static br.com.maike.order_managment_ssm.services.OrderService.HEADER_ORDEM_ID;
 
 @Configuration
 @EnableStateMachineFactory
@@ -106,25 +105,25 @@ public class OrderStateMachineConfig extends StateMachineConfigurerAdapter<Order
     @Bean
     Action<OrderStates, OrderEvents> shipOrderAction() {
         return context -> {
-            Order order = (Order) context.getMessageHeader(HEADER_KEY_ORDEM);
-            System.out.println("Shipping order " + order.getId());
+            Long orderId = (Long) context.getMessageHeader(HEADER_ORDEM_ID);
+            System.out.println("Shipping order " + orderId);
         };
     }
 
     @Bean
     Action<OrderStates, OrderEvents> payOrderAction() {
         return context -> {
-            Order order = (Order) context.getMessageHeader(HEADER_KEY_ORDEM);
-            System.out.println("Paying order " + order.getId());
+            Long orderId = (Long) context.getMessageHeader(HEADER_ORDEM_ID);
+            System.out.println("Paying order " + orderId);
         };
     }
 
     @Bean
     Action<OrderStates, OrderEvents> validateOrderAction() {
         return context -> {
-            Order order = (Order) context.getMessageHeader(HEADER_KEY_ORDEM);
+            Long orderId = (Long) context.getMessageHeader(HEADER_ORDEM_ID);
 //            if (order.getId() == 1L) throw new RuntimeException("erro");
-            System.out.println("Validating order " + order.getId());
+            System.out.println("Validating order " + orderId);
         };
     }
 }
