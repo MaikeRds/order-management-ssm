@@ -9,11 +9,12 @@ import org.springframework.stereotype.Component;
 import static br.com.maike.order_managment_ssm.services.OrderService.HEADER_ORDEM_ID;
 
 @Component
-public class PayOrderAction implements Action<OrderStates, OrderEvents> {
+public class AprovarPagamentoAction implements Action<OrderStates, OrderEvents> {
 
     @Override
     public void execute(StateContext<OrderStates, OrderEvents> context) {
         Long orderId = (Long) context.getMessageHeader(HEADER_ORDEM_ID);
-        System.out.println("Paying order " + orderId);
+        if (orderId == 1L) throw new RuntimeException("erro");
+        System.out.println("Aprovar pagamento: OrderID " + orderId);
     }
 }

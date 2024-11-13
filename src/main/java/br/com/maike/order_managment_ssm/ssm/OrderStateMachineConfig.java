@@ -1,8 +1,8 @@
 package br.com.maike.order_managment_ssm.ssm;
 
-import br.com.maike.order_managment_ssm.actions.PayOrderAction;
-import br.com.maike.order_managment_ssm.actions.ShipOrderAction;
-import br.com.maike.order_managment_ssm.actions.ValidarOrderAction;
+import br.com.maike.order_managment_ssm.actions.EnviarPedidoAction;
+import br.com.maike.order_managment_ssm.actions.ConfirmarEntregaAction;
+import br.com.maike.order_managment_ssm.actions.AprovarPagamentoAction;
 import br.com.maike.order_managment_ssm.enums.OrderEvents;
 import br.com.maike.order_managment_ssm.enums.OrderStates;
 import br.com.maike.order_managment_ssm.guards.ExampleGuard;
@@ -27,13 +27,13 @@ import java.util.Objects;
 public class OrderStateMachineConfig extends StateMachineConfigurerAdapter<OrderStates, OrderEvents> {
 
     @Autowired
-    private ValidarOrderAction validarOrderAction;
+    private AprovarPagamentoAction aprovarPagamentoAction;
 
     @Autowired
-    private PayOrderAction payOrderAction;
+    private EnviarPedidoAction enviarPedidoAction;
 
     @Autowired
-    private ShipOrderAction shipOrderAction;
+    private ConfirmarEntregaAction confirmarEntregaAction;
 
     @Autowired
     private ExampleGuard exampleGuard;
@@ -41,58 +41,51 @@ public class OrderStateMachineConfig extends StateMachineConfigurerAdapter<Order
     @Override
     public void configure(StateMachineStateConfigurer<OrderStates, OrderEvents> states) throws Exception {
         states.withStates()
-                .initial(OrderStates.NEW)
+                .initial(OrderStates.PEDIDO_CRIADO)
                 .states(EnumSet.allOf(OrderStates.class))
-                .end(OrderStates.COMPLETED)
-                .end(OrderStates.CANCELLED);
+                .end(OrderStates.PEDIDO_CRIADO)
+                .end(OrderStates.PEDIDO_CANCELADO);
     }
 
     @Override
     public void configure(StateMachineTransitionConfigurer<OrderStates, OrderEvents> transitions) throws Exception {
         transitions
                 .withExternal()
-                .source(OrderStates.NEW)
-                .target(OrderStates.VALIDATED)
-                .event(OrderEvents.VALIDATE)
-                .action(validarOrderAction)
+                .source(OrderStates.PEDIDO_CRIADO)
+                .event(OrderEvents.APROVAR_PAGAMENTO)
+                .target(OrderStates.PAGAMENTO_APROVADO)
+                .action(aprovarPagamentoAction)
 //                .guard(exampleGuard)
 
                 .and()
 
                 .withExternal()
-                .source(OrderStates.VALIDATED)
-                .target(OrderStates.PAID)
-                .event(OrderEvents.PAY)
-                .action(payOrderAction)
+                .source(OrderStates.PAGAMENTO_APROVADO)
+                .event(OrderEvents.ENVIAR_PEDIDO)
+                .target(OrderStates.PEDIDO_ENVIADO)
+                .action(enviarPedidoAction)
 
                 .and()
 
                 .withExternal()
-                .source(OrderStates.PAID)
-                .target(OrderStates.SHIPPED)
-                .event(OrderEvents.SHIP)
-                .action(shipOrderAction)
+                .source(OrderStates.PEDIDO_ENVIADO)
+                .event(OrderEvents.CONFIRMAR_ENTREGA)
+                .target(OrderStates.PEDIDO_ENTREGUE)
+                .action(confirmarEntregaAction)
 
                 .and()
 
                 .withExternal()
-                .source(OrderStates.SHIPPED)
-                .target(OrderStates.COMPLETED)
-                .event(OrderEvents.COMPLETE)
+                .source(OrderStates.PAGAMENTO_APROVADO)
+                .event(OrderEvents.CANCELAR_PEDIDO)
+                .target(OrderStates.PEDIDO_CANCELADO)
 
                 .and()
 
                 .withExternal()
-                .source(OrderStates.VALIDATED)
-                .target(OrderStates.CANCELLED)
-                .event(OrderEvents.CANCEL)
-
-                .and()
-
-                .withExternal()
-                .source(OrderStates.PAID)
-                .target(OrderStates.CANCELLED)
-                .event(OrderEvents.CANCEL);
+                .source(OrderStates.PEDIDO_CRIADO)
+                .event(OrderEvents.CANCELAR_PEDIDO)
+                .target(OrderStates.PEDIDO_CANCELADO);
     }
 
     @Override

@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 import static br.com.maike.order_managment_ssm.services.OrderService.HEADER_ORDEM_ID;
 
 @Component
-public class ShipOrderAction implements Action<OrderStates, OrderEvents> {
+public class ConfirmarEntregaAction implements Action<OrderStates, OrderEvents> {
 
     @Override
     public void execute(StateContext<OrderStates, OrderEvents> context) {
         Long orderId = (Long) context.getMessageHeader(HEADER_ORDEM_ID);
-        System.out.println("Shipping order " + orderId);
+        System.out.println("Confirmar entrega: OrderID " + orderId);
     }
 }

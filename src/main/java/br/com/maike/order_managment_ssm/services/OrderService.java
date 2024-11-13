@@ -35,7 +35,7 @@ public class OrderService {
     @Transactional
     public String add() {
         Order order = new Order();
-        order.setState(OrderStates.NEW);
+        order.setState(OrderStates.PEDIDO_CRIADO);
         Order orderCreated = orderRepository.save(order);
         System.out.println("Create order");
         return "Create order: " + orderCreated.getId();
