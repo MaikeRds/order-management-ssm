@@ -1,5 +1,7 @@
 package br.com.maike.order_managment_ssm.services;
 
+import br.com.maike.order_managment_ssm.dtos.EventOrderDTO;
+import br.com.maike.order_managment_ssm.dtos.OrderDTO;
 import br.com.maike.order_managment_ssm.enums.OrderEvents;
 import br.com.maike.order_managment_ssm.enums.OrderStates;
 import br.com.maike.order_managment_ssm.exceptions.NotFoundException;
@@ -31,7 +33,7 @@ public class OrderService {
     private OrderRepository orderRepository;
 
     @Transactional
-    public String newOrder() {
+    public String add() {
         Order order = new Order();
         order.setState(OrderStates.NEW);
         Order orderCreated = orderRepository.save(order);
@@ -49,9 +51,10 @@ public class OrderService {
     }
 
     @Transactional
-    public void processOrderAsync(Long orderId, OrderEvents event) {
-        System.out.println("Process order: " + orderId);
-        Order order = getOrder(orderId);
+    public void alterStateAsync(EventOrderDTO eventOrderDTO) {
+        System.out.println("Process order: " + eventOrderDTO.getId());
+        Order order = this.getOrder(eventOrderDTO.getId());
+        OrderEvents event = eventOrderDTO.getEvent();
 
         stateMachine.stopReactively().subscribe();
 
@@ -78,9 +81,10 @@ public class OrderService {
     }
 
     @Transactional
-    public String processOrder(Long orderId, OrderEvents event) {
-        System.out.println("Process order: " + orderId);
-        Order order = getOrder(orderId);
+    public OrderDTO alterState(EventOrderDTO eventOrderDTO) {
+        System.out.println("Process order: " + eventOrderDTO.getId());
+        Order order = this.getOrder(eventOrderDTO.getId());
+        OrderEvents event = eventOrderDTO.getEvent();
 
         stateMachine.stopReactively().block();
 
@@ -102,12 +106,17 @@ public class OrderService {
         if (resultType.equals(StateMachineEventResult.ResultType.ACCEPTED)) {
             order.setState(stateMachine.getState().getId());
             orderRepository.save(order);
+            return OrderDTO.builder()
+                    .id(order.getId())
+                    .orderStates(stateMachine.getState().getId())
+                    .mensagem("SUCESSO ao alterar o estado de maquina.")
+                    .build();
         }
 
-        System.out.println("ResultType " + resultType);
-        System.out.println("Final state " + stateMachine.getState().getId());
-        stateMachine.stopReactively().block();
-
-        return resultType.toString();
+        return OrderDTO.builder()
+                .id(order.getId())
+                .orderStates(stateMachine.getState().getId())
+                .mensagem("FALHA ao alterar o estado de maquina.")
+                .build();
     }
 }
