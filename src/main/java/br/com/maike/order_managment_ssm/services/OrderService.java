@@ -7,6 +7,7 @@ import br.com.maike.order_managment_ssm.enums.OrderStates;
 import br.com.maike.order_managment_ssm.exceptions.NotFoundException;
 import br.com.maike.order_managment_ssm.models.Order;
 import br.com.maike.order_managment_ssm.repositories.OrderRepository;
+import br.com.maike.order_managment_ssm.ssm.SetOrderStateMachine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
@@ -32,6 +33,9 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private SetOrderStateMachine setOrderStateMachine;
+
     @Transactional
     public String add() {
         Order order = new Order();
@@ -50,6 +54,12 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
+    /**
+     * Essa rotina de alteração do estado da máquina é executada de forma asíncrona.
+     *
+     * @param eventOrderDTO
+     * @return OrderDTO
+     */
     @Transactional
     public void alterStateAsync(EventOrderDTO eventOrderDTO) {
         System.out.println("Process order: " + eventOrderDTO.getId());
@@ -80,20 +90,19 @@ public class OrderService {
         stateMachine.stopReactively().subscribe();
     }
 
+    /**
+     * Essa rotina de alteração do estado da máquina é executada de forma síncrona.
+     *
+     * @param eventOrderDTO
+     * @return OrderDTO
+     */
     @Transactional
     public OrderDTO alterState(EventOrderDTO eventOrderDTO) {
         System.out.println("Process order: " + eventOrderDTO.getId());
         Order order = this.getOrder(eventOrderDTO.getId());
         OrderEvents event = eventOrderDTO.getEvent();
 
-        stateMachine.stopReactively().block();
-
-        stateMachine.getStateMachineAccessor()
-                .doWithAllRegions(access -> {
-                    access.resetStateMachineReactively(
-                            new DefaultStateMachineContext<>(order.getState(), null, null, null)
-                    ).block();
-                });
+        setOrderStateMachine.setState(order.getState());
 
         stateMachine.startReactively().block();
 
