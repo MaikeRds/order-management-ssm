@@ -8,11 +8,15 @@ import br.com.maike.order_managment_ssm.exceptions.NotFoundException;
 import br.com.maike.order_managment_ssm.models.Order;
 import br.com.maike.order_managment_ssm.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 import org.springframework.statemachine.StateMachineEventResult;
 import org.springframework.statemachine.config.StateMachineFactory;
+import org.springframework.statemachine.state.State;
 import org.springframework.statemachine.support.DefaultStateMachineContext;
+import org.springframework.statemachine.support.StateMachineInterceptorAdapter;
+import org.springframework.statemachine.transition.Transition;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
@@ -96,18 +100,18 @@ public class OrderService {
     public OrderDTO alterState(EventOrderDTO eventOrderDTO) {
         System.out.println("Process order: " + eventOrderDTO.getId());
         Order order = this.getOrder(eventOrderDTO.getId());
-        OrderEvents event = eventOrderDTO.getEvent();
-        StateMachine<OrderStates, OrderEvents> stateMachine = stateMachineFactory.getStateMachine(eventOrderDTO.getId().toString());
 
+        StateMachine<OrderStates, OrderEvents> stateMachine = stateMachineFactory.getStateMachine(eventOrderDTO.getId().toString());
+        stateMachine.stopReactively().block();
         stateMachine.getStateMachineAccessor()
                 .doWithAllRegions(access -> {
                     access.resetStateMachineReactively(
                             new DefaultStateMachineContext<>(order.getState(), null, null, null, null, stateMachine.getId())
                     ).block();
-
                 });
+        stateMachine.startReactively().block();
 
-        var sendEvent = Mono.just(MessageBuilder.withPayload(event).setHeader(HEADER_KEY_ORDEM, order).build());
+        var sendEvent = Mono.just(MessageBuilder.withPayload(eventOrderDTO.getEvent()).setHeader(HEADER_KEY_ORDEM, order).build());
         StateMachineEventResult<OrderStates, OrderEvents> result = stateMachine.sendEvent(sendEvent).blockLast();
         var resultType = Objects.nonNull(result) ? result.getResultType() : StateMachineEventResult.ResultType.DEFERRED;
 

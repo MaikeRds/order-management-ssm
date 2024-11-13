@@ -83,7 +83,7 @@ public class OrderStateMachineConfig extends StateMachineConfigurerAdapter<Order
     @Override
     public void configure(StateMachineConfigurationConfigurer<OrderStates, OrderEvents> config) throws Exception {
         config.withConfiguration()
-                .autoStartup(true)
+                .autoStartup(false)
                 .listener(stateMachineListener());
     }
 
@@ -121,10 +121,9 @@ public class OrderStateMachineConfig extends StateMachineConfigurerAdapter<Order
 
     @Bean
     Action<OrderStates, OrderEvents> validateOrderAction() {
-//        if (true) throw new RuntimeException("erro");
-
         return context -> {
             Order order = (Order) context.getMessageHeader(HEADER_KEY_ORDEM);
+//            if (order.getId() == 1L) throw new RuntimeException("erro");
             System.out.println("Validating order " + order.getId());
         };
     }
