@@ -1,8 +1,8 @@
 package br.com.maike.order_managment_ssm.controllers;
 
 import br.com.maike.order_managment_ssm.enums.OrderEvents;
-import br.com.maike.order_managment_ssm.services.OrderService;
 import br.com.maike.order_managment_ssm.models.Order;
+import br.com.maike.order_managment_ssm.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

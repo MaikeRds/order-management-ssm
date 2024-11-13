@@ -2,6 +2,7 @@ package br.com.maike.order_managment_ssm.services;
 
 import br.com.maike.order_managment_ssm.enums.OrderEvents;
 import br.com.maike.order_managment_ssm.enums.OrderStates;
+import br.com.maike.order_managment_ssm.exceptions.NotFoundException;
 import br.com.maike.order_managment_ssm.models.Order;
 import br.com.maike.order_managment_ssm.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class OrderService {
 
     public Order getOrder(Long orderId) {
         Optional<Order> order = orderRepository.findById(orderId);
-        return order.get();
+        return order.orElseThrow(() -> new NotFoundException(orderId));
     }
 
     public List<Order> findAll() {
