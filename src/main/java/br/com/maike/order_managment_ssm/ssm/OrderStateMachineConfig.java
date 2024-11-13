@@ -1,11 +1,15 @@
 package br.com.maike.order_managment_ssm.ssm;
 
+import br.com.maike.order_managment_ssm.actions.PayOrderAction;
+import br.com.maike.order_managment_ssm.actions.ShipOrderAction;
+import br.com.maike.order_managment_ssm.actions.ValidarOrderAction;
 import br.com.maike.order_managment_ssm.enums.OrderEvents;
 import br.com.maike.order_managment_ssm.enums.OrderStates;
+import br.com.maike.order_managment_ssm.guards.ExampleGuard;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
-import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachineFactory;
 import org.springframework.statemachine.config.StateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineConfigurationConfigurer;
@@ -18,11 +22,22 @@ import org.springframework.statemachine.transition.Transition;
 import java.util.EnumSet;
 import java.util.Objects;
 
-import static br.com.maike.order_managment_ssm.services.OrderService.HEADER_ORDEM_ID;
-
 @Configuration
 @EnableStateMachineFactory
 public class OrderStateMachineConfig extends StateMachineConfigurerAdapter<OrderStates, OrderEvents> {
+
+    @Autowired
+    private ValidarOrderAction validarOrderAction;
+
+    @Autowired
+    private PayOrderAction payOrderAction;
+
+    @Autowired
+    private ShipOrderAction shipOrderAction;
+
+    @Autowired
+    private ExampleGuard exampleGuard;
+
     @Override
     public void configure(StateMachineStateConfigurer<OrderStates, OrderEvents> states) throws Exception {
         states.withStates()
@@ -39,7 +54,8 @@ public class OrderStateMachineConfig extends StateMachineConfigurerAdapter<Order
                 .source(OrderStates.NEW)
                 .target(OrderStates.VALIDATED)
                 .event(OrderEvents.VALIDATE)
-                .action(validateOrderAction())
+                .action(validarOrderAction)
+//                .guard(exampleGuard)
 
                 .and()
 
@@ -47,7 +63,7 @@ public class OrderStateMachineConfig extends StateMachineConfigurerAdapter<Order
                 .source(OrderStates.VALIDATED)
                 .target(OrderStates.PAID)
                 .event(OrderEvents.PAY)
-                .action(payOrderAction())
+                .action(payOrderAction)
 
                 .and()
 
@@ -55,7 +71,7 @@ public class OrderStateMachineConfig extends StateMachineConfigurerAdapter<Order
                 .source(OrderStates.PAID)
                 .target(OrderStates.SHIPPED)
                 .event(OrderEvents.SHIP)
-                .action(shipOrderAction())
+                .action(shipOrderAction)
 
                 .and()
 
@@ -102,28 +118,4 @@ public class OrderStateMachineConfig extends StateMachineConfigurerAdapter<Order
         };
     }
 
-    @Bean
-    Action<OrderStates, OrderEvents> shipOrderAction() {
-        return context -> {
-            Long orderId = (Long) context.getMessageHeader(HEADER_ORDEM_ID);
-            System.out.println("Shipping order " + orderId);
-        };
-    }
-
-    @Bean
-    Action<OrderStates, OrderEvents> payOrderAction() {
-        return context -> {
-            Long orderId = (Long) context.getMessageHeader(HEADER_ORDEM_ID);
-            System.out.println("Paying order " + orderId);
-        };
-    }
-
-    @Bean
-    Action<OrderStates, OrderEvents> validateOrderAction() {
-        return context -> {
-            Long orderId = (Long) context.getMessageHeader(HEADER_ORDEM_ID);
-//            if (order.getId() == 1L) throw new RuntimeException("erro");
-            System.out.println("Validating order " + orderId);
-        };
-    }
 }
